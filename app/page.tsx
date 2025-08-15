@@ -8,25 +8,34 @@ export default async function HomePage() {
   try {
     const {
       data: { user },
+      error: authError,
     } = await supabase.auth.getUser()
 
-    if (user) {
-      const { data: userData } = await supabase
-        .from("users")
-        .select("onboarding_completed, jurisdiction_attested")
-        .eq("id", user.id)
-        .single()
+    if (user && !authError) {
+      try {
+        const { data: userData, error: dbError } = await supabase
+          .from("users")
+          .select("onboarding_completed, jurisdiction_attested")
+          .eq("id", user.id)
+          .single()
 
-      if (!userData?.jurisdiction_attested) {
-        redirect("/onboarding")
-      } else if (!userData?.onboarding_completed) {
-        redirect("/onboarding")
-      } else {
-        redirect("/home")
+        if (!dbError && userData) {
+          if (!userData.jurisdiction_attested) {
+            redirect("/onboarding")
+          } else if (!userData.onboarding_completed) {
+            redirect("/onboarding")
+          } else {
+            redirect("/home")
+          }
+        }
+      } catch (dbError) {
+        console.log("Database query failed:", dbError)
+        // Continue to show login form if database fails
       }
     }
   } catch (error) {
-    console.log("Database connection issue, showing login form")
+    console.log("Auth check failed:", error)
+    // Continue to show login form if auth fails
   }
 
   return (
