@@ -82,6 +82,10 @@ export async function signUp(prevState: any, formData: FormData) {
     })
 
     if (error) {
+      // If email domain restriction error, provide helpful message
+      if (error.message.includes("email_address_invalid") || error.message.includes("invalid")) {
+        return { error: "Email domain restricted. Please create user manually in Supabase dashboard: Authentication → Users → Add user (check 'Auto Confirm User')" }
+      }
       return { error: error.message }
     }
 

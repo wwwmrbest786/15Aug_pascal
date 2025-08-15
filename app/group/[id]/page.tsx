@@ -9,6 +9,16 @@ interface GroupPageProps {
   }
 }
 
+export async function generateStaticParams() {
+  // For static export, we'll generate a few common paths
+  // In production, you might want to fetch actual group IDs
+  return [
+    { id: '1' },
+    { id: '2' },
+    { id: '3' },
+  ]
+}
+
 export default async function GroupPage({ params }: GroupPageProps) {
   const supabase = createClient()
 
